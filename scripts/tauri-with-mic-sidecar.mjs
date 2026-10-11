@@ -492,7 +492,9 @@ function findManagedTool(toolStem, targetTriple, envVarName) {
 }
 
 function bundleHasRequiredSdl3(targetTriple) {
-  const productName = 'Noland Connect';
+  const productName = JSON.parse(
+    readFileSync(join(repoRoot, 'src-tauri', 'tauri.conf.json'), 'utf8'),
+  ).productName;
   const candidates = [
     join(repoRoot, 'src-tauri', 'target', 'release', 'bundle', 'macos', `${productName}.app`),
     join(repoRoot, 'src-tauri', 'target', targetTriple, 'release', 'bundle', 'macos', `${productName}.app`),
