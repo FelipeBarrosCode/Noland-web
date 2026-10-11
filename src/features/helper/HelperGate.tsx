@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
-import { isHelperAvailable } from "../../helper/client";
+import { getHelperAvailability } from "../../helper/client";
 import { translate } from "../../lib/i18n";
 import { isRunningInTauri } from "../../lib/tauri";
 import { HELPER_RELEASE_PAGE, resolveHelperDownload } from "../../helper/releases";
@@ -17,10 +17,10 @@ export function HelperGate({ children }: { children: ReactNode }) {
     let cancelled = false;
     let timer: number | null = null;
     const check = async () => {
-      const available = await isHelperAvailable(true);
+      const availability = await getHelperAvailability(true);
       if (cancelled) return;
-      setStatus(available ? "ready" : "missing");
-      if (!available) timer = window.setTimeout(() => void check(), 2_000);
+      setStatus(availability === "ready" ? "ready" : availability === "starting" ? "checking" : "missing");
+      if (availability !== "ready") timer = window.setTimeout(() => void check(), 2_000);
     };
     void check();
     return () => {

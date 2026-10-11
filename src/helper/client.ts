@@ -1,7 +1,9 @@
 const HELPER_BASE = "http://127.0.0.1:43127";
 
 let sessionToken: string | null = null;
-let helperDetected: boolean | null = null;
+export type HelperAvailability = "missing" | "starting" | "ready";
+
+let helperAvailability: HelperAvailability | null = null;
 let eventSource: EventSource | null = null;
 
 async function withTimeout<T>(promise: Promise<T>, milliseconds: number): Promise<T> {
@@ -19,19 +21,23 @@ async function withTimeout<T>(promise: Promise<T>, milliseconds: number): Promis
   }
 }
 
-export async function isHelperAvailable(force = false): Promise<boolean> {
-  if (!force && helperDetected !== null) return helperDetected;
+export async function getHelperAvailability(force = false): Promise<HelperAvailability> {
+  if (!force && helperAvailability !== null) return helperAvailability;
   try {
     const response = await withTimeout(fetch(`${HELPER_BASE}/v1/health`, {
       cache: "no-store",
       headers: { accept: "application/json" },
     }), 800);
     const body = response.ok ? await response.json() as { ready?: boolean } : null;
-    helperDetected = response.ok && body?.ready === true;
+    helperAvailability = !response.ok ? "missing" : body?.ready === true ? "ready" : "starting";
   } catch {
-    helperDetected = false;
+    helperAvailability = "missing";
   }
-  return helperDetected;
+  return helperAvailability;
+}
+
+export async function isHelperAvailable(force = false): Promise<boolean> {
+  return await getHelperAvailability(force) === "ready";
 }
 
 export async function getHelperSession(): Promise<string | null> {
