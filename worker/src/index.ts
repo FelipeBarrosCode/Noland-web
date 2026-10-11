@@ -53,7 +53,16 @@ export default {
         headers: { ...cors(request, env), "content-type": "application/json" },
       });
     }
-    if (!incoming.pathname.startsWith("/api/vast/")) return env.ASSETS.fetch(request);
+    if (!incoming.pathname.startsWith("/api/vast/")) {
+      const asset = await env.ASSETS.fetch(request);
+      const contentType = asset.headers.get("content-type") ?? "";
+      if (incoming.pathname === "/" || contentType.includes("text/html")) {
+        const headers = new Headers(asset.headers);
+        headers.set("cache-control", "no-cache, no-store, must-revalidate");
+        return new Response(asset.body, { status: asset.status, headers });
+      }
+      return asset;
+    }
     const upstreamPath = incoming.pathname.slice("/api/vast".length);
     if (!ALLOWED_PREFIXES.some((prefix) => upstreamPath.startsWith(prefix))) {
       return response(request, env, "Vast endpoint is not allowlisted", 403);
