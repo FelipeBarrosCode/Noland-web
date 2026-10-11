@@ -166,11 +166,11 @@ async fn create_session(
     if let Some(window) = bridge.app.get_webview_window("main") {
         let _ = window.hide();
     }
-    bridge
-        .sessions
-        .write()
-        .await
-        .insert(token.clone(), Instant::now() + Duration::from_secs(43_200));
+    let now = Instant::now();
+    let mut sessions = bridge.sessions.write().await;
+    sessions.retain(|_, expires_at| *expires_at > now);
+    sessions.insert(token.clone(), now + Duration::from_secs(43_200));
+    drop(sessions);
     Json(serde_json::json!({ "token": token, "expiresInSeconds": 43200 })).into_response()
 }
 
