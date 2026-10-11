@@ -24,9 +24,17 @@ jobs:
         with:
           node-version: 22
           cache: npm
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
       - run: npm ci
       - run: npm run build
       - run: npm run i18n:check
+      - name: Check Noland Helper Rust bridge
+        env:
+          NOLAND_SKIP_NATIVE_BUILD: "1"
+          TAURI_CONFIG: '{"build":{"frontendDist":"ci-dist"},"bundle":{"externalBin":[],"resources":[]}}'
+        run: |
+          mkdir -p src-tauri/ci-dist
+          cargo check --locked --manifest-path src-tauri/Cargo.toml --workspace --all-targets
       - name: Validate gateway installer
         run: bash -n instance-gateway/install.sh
       - name: Validate Worker bundle
