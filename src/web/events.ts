@@ -1,9 +1,12 @@
+import { ensureHelperEventStream } from "../helper/client";
+
 type BackendEvent<T> = { payload: T };
 
 export async function listenWebEvent<T>(
   event: string,
   callback: (event: BackendEvent<T>) => void,
 ): Promise<() => void> {
+  void ensureHelperEventStream();
   const listener = (browserEvent: Event) => {
     callback({ payload: (browserEvent as CustomEvent<T>).detail });
   };

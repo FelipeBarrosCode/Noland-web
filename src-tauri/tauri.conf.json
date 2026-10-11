@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Noland Connect",
+  "productName": "Noland Helper",
   "version": "0.1.17",
-  "identifier": "com.noland.connect",
+  "identifier": "com.noland.web.helper",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "Noland Connect",
+        "title": "Noland Helper",
         "width": 1400,
         "height": 920,
         "minWidth": 1100,
@@ -27,14 +27,14 @@
   },
   "bundle": {
     "active": true,
-    "createUpdaterArtifacts": true,
+    "createUpdaterArtifacts": false,
     "publisher": "No Land - Felipe Barros Moura",
-    "homepage": "https://no-land.net",
+    "homepage": "https://github.com/FelipeBarrosCode/Noland-web",
     "copyright": "Copyright © 2026 No Land and Felipe Barros Moura",
     "license": "GPL-3.0-only",
     "category": "Utility",
-    "shortDescription": "Connect to and manage remote Linux workstations",
-    "longDescription": "Noland Connect manages remote Linux workstations.\nIt provides remote applications, networking, and backup workflows.",
+    "shortDescription": "Local SSH and native bridge for Noland Web",
+    "longDescription": "Noland Helper securely connects the browser interface to Noland's Rust orchestration, SSH, networking, storage, microphone, and streaming services.",
     "targets": "all",
     "externalBin": [
       "binaries/noland-net-helper",
@@ -165,7 +165,7 @@
     "updater": {
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaW5pIHB1YmxpYyBrZXk6IDRGQ0Q4QUYyRTczQjVCQTgKUldTb1d6dm44b3JOVDdoVXYrblJqaGFpZWFCdmM4dERWb3N3cHRlYTBoYjNYUWJwYXAwN2F1QjcK",
       "endpoints": [
-        "https://github.com/FelipeBarrosCode/no_land/releases/latest/download/latest.json"
+        "https://github.com/FelipeBarrosCode/Noland-web/releases/download/noland-helper-latest/latest.json"
       ],
       "windows": {
         "installMode": "passive"

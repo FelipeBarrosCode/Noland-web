@@ -1169,4 +1169,11 @@
   "web.gateway.readyDescription": "打开网关，在提示时接受临时证书，然后使用 Noland 用户名和密码登录。首次串流前，请将 localhost 与 Sunshine 配对。",
   "web.gateway.open": "打开串流网关",
   "web.gateway.dashboard": "返回控制面板"
+  ,"web.helper.eyebrow": "本地助手"
+  ,"web.helper.checking": "正在检查 Noland Helper…"
+  ,"web.helper.required": "安装 Noland Helper 以继续"
+  ,"web.helper.description": "此界面在浏览器中运行时，助手会保留 Noland 完整的 Rust、SSH、钥匙串、配置、终端、上传、存储、麦克风和网络路径。"
+  ,"web.helper.install": "下载 Noland Helper"
+  ,"web.helper.retry": "重新检查"
+  ,"web.helper.handoff": "完成一次系统安装后，助手会自动启动，此页面无需其他设置即可继续。"
 }

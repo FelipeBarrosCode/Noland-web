@@ -87,6 +87,20 @@ if [[ -z "$sunshine_password" ]]; then
 fi
 runuser -u "$target_user" -- env HOME="$target_home" sunshine --creds "$sunshine_user" "$sunshine_password"
 
+ice_servers_json=$(python3 - <<'PY'
+import base64,json,os
+servers=[{"is_default":True,"urls":["stun:stun.cloudflare.com:3478"],"username":"","credential":""}]
+urls_b64=os.environ.get("NOLAND_TURN_URLS_B64", "")
+if urls_b64:
+    urls=json.loads(base64.b64decode(urls_b64).decode())
+    username=base64.b64decode(os.environ.get("NOLAND_TURN_USERNAME_B64", "")).decode()
+    credential=base64.b64decode(os.environ.get("NOLAND_TURN_CREDENTIAL_B64", "")).decode()
+    servers.append({"is_default":False,"urls":urls,"username":username,"credential":credential})
+print(json.dumps(servers,separators=(",",":")))
+PY
+)
+
+if ! systemctl cat sunshine.service >/dev/null 2>&1; then
 cat > /etc/systemd/system/sunshine.service <<EOF
 [Unit]
 Description=Sunshine game stream host
@@ -106,6 +120,7 @@ RestartSec=3
 [Install]
 WantedBy=multi-user.target
 EOF
+fi
 
 if [[ ! -s "$CONFIG_ROOT/tls/key.pem" || ! -s "$CONFIG_ROOT/tls/cert.pem" ]]; then
   public_name=${NOLAND_GATEWAY_PUBLIC_NAME:-$(curl -fsS https://api.ipify.org || hostname -f)}
@@ -125,14 +140,7 @@ cat > "$CONFIG_ROOT/config.json" <<EOF
     "session_expiration_check_interval": { "secs": 300, "nanos": 0 }
   },
   "webrtc": {
-    "ice_servers": [
-      {
-        "is_default": true,
-        "urls": ["stun:stun.cloudflare.com:3478"],
-        "username": "",
-        "credential": ""
-      }
-    ],
+    "ice_servers": ${ice_servers_json},
     "ice_server_script": null,
     "port_range": { "min": 40000, "max": 40100 },
     "nat_1to1": null,
@@ -222,8 +230,9 @@ EOF
 
 systemctl daemon-reload
 systemctl enable --now sunshine.service
-systemctl enable --now noland-web-gateway.service
-systemctl enable --now nginx.service
+systemctl enable noland-web-gateway.service nginx.service
+systemctl restart noland-web-gateway.service
+systemctl restart nginx.service
 
 gateway_ready=0
 for _ in $(seq 1 30); do

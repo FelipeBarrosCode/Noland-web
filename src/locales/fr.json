@@ -1169,4 +1169,11 @@
   "web.gateway.readyDescription": "Ouvrez la passerelle, acceptez le certificat temporaire si demandé et connectez-vous avec vos identifiants Noland. Associez localhost à Sunshine avant le premier flux.",
   "web.gateway.open": "Ouvrir la passerelle",
   "web.gateway.dashboard": "Retour au tableau de bord"
+  ,"web.helper.eyebrow": "Assistant local"
+  ,"web.helper.checking": "Recherche de Noland Helper…"
+  ,"web.helper.required": "Installez Noland Helper pour continuer"
+  ,"web.helper.description": "L’assistant conserve les parcours Rust, SSH, trousseau, provisionnement, terminal, transferts, stockage, microphone et réseau complets de Noland pendant que cette interface s’exécute dans le navigateur."
+  ,"web.helper.install": "Télécharger Noland Helper"
+  ,"web.helper.retry": "Vérifier à nouveau"
+  ,"web.helper.handoff": "Après l’installation unique du système, l’assistant démarre automatiquement et cette page continue sans autre étape de configuration."
 }

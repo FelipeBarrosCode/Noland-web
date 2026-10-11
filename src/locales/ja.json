@@ -1169,4 +1169,11 @@
   "web.gateway.readyDescription": "ゲートウェイを開き、求められた場合は一時証明書を承認して、Noland のユーザー名とパスワードでログインしてください。最初のストリーム前に localhost を Sunshine とペアリングします。",
   "web.gateway.open": "ストリーミングゲートウェイを開く",
   "web.gateway.dashboard": "ダッシュボードに戻る"
+  ,"web.helper.eyebrow": "ローカルヘルパー"
+  ,"web.helper.checking": "Noland Helper を確認しています…"
+  ,"web.helper.required": "続行するには Noland Helper をインストールしてください"
+  ,"web.helper.description": "この画面をブラウザーで実行しながら、Noland の Rust、SSH、キーチェーン、プロビジョニング、ターミナル、アップロード、ストレージ、マイク、ネットワークの全経路を維持します。"
+  ,"web.helper.install": "Noland Helper をダウンロード"
+  ,"web.helper.retry": "再確認"
+  ,"web.helper.handoff": "一度 OS にインストールすると、ヘルパーは自動起動し、このページは追加設定なしで続行します。"
 }

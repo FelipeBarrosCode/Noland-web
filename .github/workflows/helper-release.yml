@@ -1,0 +1,135 @@
+name: Build Noland Helper
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  macos-arm64:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          submodules: recursive
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 22
+          cache: npm
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        with:
+          targets: aarch64-apple-darwin
+      - uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
+        with:
+          workspaces: |
+            src-tauri
+            mic-sidecar
+      - run: brew install pkg-config openssl@3
+      - run: npm ci
+      - name: Stage managed helper tools
+        run: node scripts/stage-ci-managed-tools.mjs --target aarch64-apple-darwin
+      - name: Build helper DMG
+        env:
+          NOLAND_REQUIRE_SIGNED_RELEASE: "0"
+        run: >-
+          npm run tauri:build -- --target aarch64-apple-darwin --bundles dmg
+          --config '{"bundle":{"createUpdaterArtifacts":false}}'
+      - name: Collect helper installer
+        run: |
+          mkdir -p helper-release
+          find src-tauri/target/aarch64-apple-darwin/release/bundle/dmg -type f -name '*.dmg' -exec cp '{}' helper-release/Noland-Helper-macos-arm64.dmg \;
+          test -s helper-release/Noland-Helper-macos-arm64.dmg
+      - uses: softprops/action-gh-release@62c96d0c4e8a889135c1f3a25910db8dbe0e85f7 # v2.3.4
+        with:
+          tag_name: noland-helper-latest
+          name: Noland Helper
+          prerelease: true
+          make_latest: false
+          overwrite_files: true
+          files: helper-release/*
+
+  linux-x64:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          submodules: recursive
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 22
+          cache: npm
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        with:
+          targets: x86_64-unknown-linux-gnu
+      - uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
+        with:
+          workspaces: |
+            src-tauri
+            mic-sidecar
+      - name: Install Linux build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ca-certificates curl openssh-client xdg-utils xvfb dbus-x11 cpio file binutils libwebkit2gtk-4.1-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev libasound2-dev libudev-dev libwayland-dev libxkbcommon-dev wayland-protocols libdecor-0-dev pkg-config libunwind-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev gstreamer1.0-tools gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-libav gstreamer1.0-gl gstreamer1.0-vaapi gstreamer1.0-x gstreamer1.0-pipewire rpm2cpio libssl-dev libopus-dev libpulse-dev patchelf lintian
+      - run: npm ci
+      - run: node scripts/stage-ci-managed-tools.mjs --target x86_64-unknown-linux-gnu
+      - name: Build helper Linux packages
+        env:
+          NOLAND_REQUIRE_SIGNED_RELEASE: "0"
+        run: npm run tauri:build -- --target x86_64-unknown-linux-gnu --bundles deb,appimage
+      - name: Repair AppImage entry point
+        run: bash scripts/fix-appimage-metadata.sh src-tauri/target/x86_64-unknown-linux-gnu/release/bundle x64
+      - name: Collect helper installers
+        run: |
+          mkdir -p helper-release
+          find src-tauri/target/x86_64-unknown-linux-gnu/release/bundle -type f -name '*.deb' -exec cp '{}' helper-release/Noland-Helper-linux-x64.deb \;
+          find src-tauri/target/x86_64-unknown-linux-gnu/release/bundle -type f -name '*.AppImage' -exec cp '{}' helper-release/Noland-Helper-linux-x64.AppImage \;
+          test -s helper-release/Noland-Helper-linux-x64.deb
+          test -s helper-release/Noland-Helper-linux-x64.AppImage
+      - uses: softprops/action-gh-release@62c96d0c4e8a889135c1f3a25910db8dbe0e85f7 # v2.3.4
+        with:
+          tag_name: noland-helper-latest
+          name: Noland Helper
+          prerelease: true
+          make_latest: false
+          overwrite_files: true
+          files: helper-release/*
+
+  windows-x64:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          submodules: recursive
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 22
+          cache: npm
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        with:
+          targets: x86_64-pc-windows-msvc
+      - uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
+        with:
+          workspaces: |
+            src-tauri
+            mic-sidecar
+      - run: npm ci
+      - run: node scripts/stage-ci-managed-tools.mjs --target x86_64-pc-windows-msvc
+      - name: Build helper Windows installer
+        shell: pwsh
+        run: npm run tauri:build -- --target x86_64-pc-windows-msvc --bundles nsis
+      - name: Collect helper installer
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force helper-release | Out-Null
+          $installer = Get-ChildItem -Recurse src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis -Filter '*-setup.exe' | Select-Object -First 1
+          if (-not $installer) { throw 'NSIS helper installer not found' }
+          Copy-Item $installer.FullName helper-release/Noland-Helper-windows-x64-setup.exe
+      - uses: softprops/action-gh-release@62c96d0c4e8a889135c1f3a25910db8dbe0e85f7 # v2.3.4
+        with:
+          tag_name: noland-helper-latest
+          name: Noland Helper
+          prerelease: true
+          make_latest: false
+          overwrite_files: true
+          files: helper-release/*

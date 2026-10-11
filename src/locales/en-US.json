@@ -1169,4 +1169,11 @@
   "web.gateway.readyDescription": "Open the gateway, accept its temporary certificate if prompted, and sign in with your Noland username and password. Pair localhost with Sunshine before the first stream.",
   "web.gateway.open": "Open streaming gateway",
   "web.gateway.dashboard": "Return to dashboard"
+  ,"web.helper.eyebrow": "Local helper"
+  ,"web.helper.checking": "Checking for Noland Helper…"
+  ,"web.helper.required": "Install Noland Helper to continue"
+  ,"web.helper.description": "The helper preserves Noland's complete Rust, SSH, keychain, provisioning, terminal, upload, storage, microphone, and networking pathways while this interface runs in the browser."
+  ,"web.helper.install": "Download Noland Helper"
+  ,"web.helper.retry": "Check again"
+  ,"web.helper.handoff": "After the one-time OS installation, the helper starts automatically and this page continues without another setup step."
 }

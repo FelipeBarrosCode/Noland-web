@@ -1169,4 +1169,11 @@
   "web.gateway.readyDescription": "Abra o gateway, aceite o certificado temporário se solicitado e entre com seu usuário e senha do Noland. Emparelhe localhost com o Sunshine antes da primeira transmissão.",
   "web.gateway.open": "Abrir gateway de streaming",
   "web.gateway.dashboard": "Voltar ao painel"
+  ,"web.helper.eyebrow": "Helper local"
+  ,"web.helper.checking": "Procurando o Noland Helper…"
+  ,"web.helper.required": "Instale o Noland Helper para continuar"
+  ,"web.helper.description": "O helper preserva os caminhos completos de Rust, SSH, chaveiro, provisionamento, terminal, uploads, armazenamento, microfone e rede do Noland enquanto esta interface roda no navegador."
+  ,"web.helper.install": "Baixar Noland Helper"
+  ,"web.helper.retry": "Verificar novamente"
+  ,"web.helper.handoff": "Após a instalação única no sistema, o helper inicia automaticamente e esta página continua sem outra etapa de configuração."
 }

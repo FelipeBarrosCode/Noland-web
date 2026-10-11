@@ -21,6 +21,7 @@ import { moonlightGetSessionState, refreshStateAgentIndex } from "../lib/backend
 import { buildDiagnosticIssueUrl } from "../lib/githubIssue";
 import { isRunningInTauri } from "../lib/tauri";
 import { notifyInstancesNeedAttention } from "../lib/instanceNotifications";
+import { bindNativeHelperBridge } from "../helper/nativeBridge";
 
 import {
   checkForAppUpdate,
@@ -586,6 +587,10 @@ export function App() {
   const stopProvisioningAfterCurrentStage = useAppStore(
     (state) => state.stopProvisioningAfterCurrentStage,
   );
+
+  useEffect(() => {
+    void bindNativeHelperBridge();
+  }, []);
 
   useEffect(() => {
     let cancelled = false;

@@ -7,6 +7,7 @@ pub mod connection_manager;
 pub mod diagnostics;
 pub mod display_profile;
 pub mod health_check;
+pub mod helper_server;
 pub mod instance_lifecycle;
 pub mod instance_manager;
 pub mod launch_library;

@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { App } from "./app/App";
 import { LocalizationProvider } from "./lib/i18n";
+import { HelperGate } from "./features/helper/HelperGate";
 import appLogo from "./public/noland.png";
 import "./index.css";
 
@@ -16,7 +17,9 @@ if (!favicon.parentNode) {
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <LocalizationProvider>
-      <App />
+      <HelperGate>
+        <App />
+      </HelperGate>
     </LocalizationProvider>
   </React.StrictMode>
 );

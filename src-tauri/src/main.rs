@@ -25,7 +25,12 @@ use services::{
     sunshine::{generate_headless_edid_base64, EDID_MAX_REFRESH_HZ, EDID_MIN_REFRESH_HZ},
     wireguard::normalize_wireguard_state_from_disk,
 };
+use tauri::{
+    menu::{Menu, MenuItem},
+    tray::TrayIconBuilder,
+};
 use tauri::{Emitter, Manager, WindowEvent};
+use tauri_plugin_autostart::ManagerExt as AutostartManagerExt;
 use tracing::{error, info, warn};
 use utils::logging::init_logging;
 
@@ -102,7 +107,30 @@ fn main() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_autostart::Builder::new().args(["--helper"]).build())
         .setup(|app| {
+            if let Err(error) = app.autolaunch().enable() {
+                warn!(%error, "failed to enable Noland Helper at login");
+            }
+            let open_item = MenuItem::with_id(app, "open", "Open Noland Helper", true, None::<&str>)?;
+            let quit_item = MenuItem::with_id(app, "quit", "Quit Noland Helper", true, None::<&str>)?;
+            let tray_menu = Menu::with_items(app, &[&open_item, &quit_item])?;
+            let mut tray = TrayIconBuilder::new()
+                .menu(&tray_menu)
+                .on_menu_event(|app, event| match event.id.as_ref() {
+                    "open" => {
+                        if let Some(window) = app.get_webview_window("main") {
+                            let _ = window.show();
+                            let _ = window.set_focus();
+                        }
+                    }
+                    "quit" => app.exit(0),
+                    _ => {}
+                });
+            if let Some(icon) = app.default_window_icon() {
+                tray = tray.icon(icon.clone());
+            }
+            tray.build(app)?;
             mic_client::configure_embedded_stream_runtime();
             if let Ok(resource_dir) = app.path().resource_dir() {
                 std::env::set_var("NOLAND_TAURI_RESOURCE_DIR", resource_dir);
@@ -118,6 +146,25 @@ fn main() {
                 .map_err(|error| format!("Failed to create app data directory: {error}"))?;
 
             let state_path = app_data_dir.join("state.json");
+            if !state_path.exists() {
+                if let Some(legacy_state_path) = dirs::data_dir()
+                    .map(|directory| directory.join("com.noland.connect").join("state.json"))
+                    .filter(|path| path.is_file())
+                {
+                    match std::fs::copy(&legacy_state_path, &state_path) {
+                        Ok(_) => info!(
+                            source = %legacy_state_path.display(),
+                            destination = %state_path.display(),
+                            "Imported desktop state into Noland Helper"
+                        ),
+                        Err(error) => warn!(
+                            source = %legacy_state_path.display(),
+                            %error,
+                            "Could not import desktop state into Noland Helper"
+                        ),
+                    }
+                }
+            }
             let json_state_store: Arc<dyn StateStore> = Arc::new(JsonStateStore::new(
                 state_path.clone(),
                 config.state_schema_version,
@@ -440,6 +487,14 @@ fn main() {
             app.manage(artwork_service);
             app.manage(network_monitor::NetworkMonitor::default());
             app.manage(moonlight::platform::StreamWindowCloseState::default());
+            let helper_bridge = services::helper_server::HelperBridge::new(app.handle().clone());
+            app.manage(helper_bridge.clone());
+            tauri::async_runtime::spawn(services::helper_server::run(helper_bridge));
+            if std::env::args().any(|argument| argument == "--helper") {
+                if let Some(window) = app.get_webview_window("main") {
+                    let _ = window.hide();
+                }
+            }
             let moonlight_manager = moonlight::composition::MoonlightManager::new(
                 state_path.clone(),
                 app_data_dir.clone(),
@@ -583,6 +638,10 @@ fn main() {
             });
         })
         .invoke_handler(tauri::generate_handler![
+            services::helper_server::helper_rpc_respond,
+            services::helper_server::helper_publish_event,
+            services::helper_server::helper_bridge_ready,
+            services::helper_server::helper_pick_upload_paths,
             get_app_state,
             get_auto_shutdown_settings,
             get_instance_auto_shutdown_status,
@@ -676,6 +735,7 @@ fn main() {
             list_remote_upload_folders,
             pause_instance,
             destroy_instance,
+            refresh_instance_web_gateway,
 
 
             get_instance_mic_config,

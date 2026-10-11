@@ -1169,4 +1169,11 @@
   "web.gateway.readyDescription": "게이트웨이를 열고 메시지가 표시되면 임시 인증서를 승인한 다음 Noland 사용자 이름과 비밀번호로 로그인하세요. 첫 스트리밍 전에 localhost를 Sunshine과 페어링하세요.",
   "web.gateway.open": "스트리밍 게이트웨이 열기",
   "web.gateway.dashboard": "대시보드로 돌아가기"
+  ,"web.helper.eyebrow": "로컬 도우미"
+  ,"web.helper.checking": "Noland Helper 확인 중…"
+  ,"web.helper.required": "계속하려면 Noland Helper를 설치하세요"
+  ,"web.helper.description": "이 인터페이스가 브라우저에서 실행되는 동안 Noland의 전체 Rust, SSH, 키체인, 프로비저닝, 터미널, 업로드, 저장소, 마이크 및 네트워크 경로를 유지합니다."
+  ,"web.helper.install": "Noland Helper 다운로드"
+  ,"web.helper.retry": "다시 확인"
+  ,"web.helper.handoff": "한 번 OS에 설치하면 도우미가 자동으로 시작되고 이 페이지는 추가 설정 없이 계속됩니다."
 }

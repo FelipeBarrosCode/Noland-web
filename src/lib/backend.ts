@@ -195,6 +195,10 @@ export async function uploadPathsToInstance(
   });
 }
 
+export async function pickLocalUploadPaths(directory: boolean): Promise<string[]> {
+  return invokeSafe<string[]>("helper_pick_upload_paths", { directory });
+}
+
 export interface RemoteFolderListing {
   path: string;
   homePath: string;

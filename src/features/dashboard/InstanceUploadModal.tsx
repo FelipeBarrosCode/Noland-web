@@ -4,8 +4,9 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import { open } from "@tauri-apps/plugin-dialog";
 import { Button } from "../../components/ui/Button";
 import { ModalBody, ModalFrame } from "../../components/ui/ModalFrame";
-import { listRemoteUploadFolders, type RemoteFolderListing } from "../../lib/backend";
+import { listRemoteUploadFolders, pickLocalUploadPaths, type RemoteFolderListing } from "../../lib/backend";
 import type { RentedInstanceSummary } from "../../lib/types";
+import { isRunningInTauri } from "../../lib/tauri";
 
 interface Props {
   instance: RentedInstanceSummary;
@@ -36,18 +37,20 @@ export function InstanceUploadModal({ instance, onUpload, onClose }: Props) {
 
   const openNativePicker = async () => {
     if (startingRef.current) return;
-    const selection = await open({
-      title: pickerMode === "files" ? translate("upload.picker.files") : translate("upload.picker.folders"),
-      multiple: true,
-      directory: pickerMode === "folders",
-      recursive: pickerMode === "folders",
-    });
+    const selection = isRunningInTauri()
+      ? await open({
+          title: pickerMode === "files" ? translate("upload.picker.files") : translate("upload.picker.folders"),
+          multiple: true,
+          directory: pickerMode === "folders",
+          recursive: pickerMode === "folders",
+        })
+      : await pickLocalUploadPaths(pickerMode === "folders");
     if (!selection) return;
     startUpload(Array.isArray(selection) ? selection : [selection]);
   };
 
   useEffect(() => {
-    if (folderPickerOpen) return;
+    if (folderPickerOpen || !isRunningInTauri()) return;
     let disposed = false;
     let unlisten: (() => void) | undefined;
 

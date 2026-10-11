@@ -630,6 +630,8 @@ pub struct RentedInstanceSummary {
     pub ssh_host: String,
     pub ssh_port: u16,
     pub public_ip: String,
+    #[serde(default = "default_gateway_port")]
+    pub gateway_port: u16,
     #[serde(default = "default_true")]
     pub embedded_moonlight_pipeline_enabled: bool,
     #[serde(default)]
@@ -654,6 +656,10 @@ pub struct RentedInstanceSummary {
     pub embedded_moonlight_audio_sample_count: Option<u64>,
     #[serde(default)]
     pub embedded_moonlight_paired: Option<bool>,
+}
+
+fn default_gateway_port() -> u16 {
+    8080
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]

@@ -5,6 +5,7 @@ use std::{
     time::Duration,
 };
 
+use base64::Engine;
 use chrono::Utc;
 use tauri::AppHandle;
 use tokio::time::sleep;
@@ -25,6 +26,7 @@ use crate::{
 use super::{
     app_context::{AppContext, OrchestrationStartRequest},
     audio_latency::AudioLatencyService,
+    cloudflare_turn,
     health_check::run_system_health_report,
     instance_manager::InstanceManager,
     lifecycle_agent::LifecycleAgentProvisioner,
@@ -54,6 +56,62 @@ async fn provision_microphone_receiver(
     target_user: &str,
 ) -> AppResult<String> {
     MicReceiverProvisioner::install(remote, target_user).await
+}
+
+pub(crate) async fn ensure_web_gateway(context: &AppContext, remote: &RemoteExec) -> AppResult<()> {
+    let health = remote.ssh(
+        "systemctl is-active --quiet noland-web-gateway.service && systemctl is-active --quiet nginx.service && systemctl is-active --quiet sunshine.service",
+        Duration::from_secs(15),
+    );
+    let turn_enabled = context.state.read().await.cloudflare_turn.enabled;
+    if !turn_enabled && health.as_ref().is_ok_and(|output| output.status_code == 0) {
+        return Ok(());
+    }
+
+    let state = context.state.read().await;
+    let username =
+        base64::engine::general_purpose::STANDARD.encode(state.credentials.app_username.as_bytes());
+    let password =
+        base64::engine::general_purpose::STANDARD.encode(state.credentials.app_password.as_bytes());
+    drop(state);
+    let turn_credentials = if turn_enabled {
+        match cloudflare_turn::generate_runtime_credentials(&context.http_client).await {
+            Ok(credentials) => Some(credentials),
+            Err(error) => {
+                warn!(%error, "Cloudflare TURN credentials unavailable for browser gateway; continuing with direct WebRTC");
+                None
+            }
+        }
+    } else {
+        None
+    };
+    let (turn_urls, turn_username, turn_credential) = turn_credentials
+        .map(|credentials| {
+            (
+                base64::engine::general_purpose::STANDARD.encode(
+                    serde_json::to_vec(&credentials.urls).unwrap_or_else(|_| b"[]".to_vec()),
+                ),
+                base64::engine::general_purpose::STANDARD.encode(credentials.username),
+                base64::engine::general_purpose::STANDARD.encode(credentials.credential),
+            )
+        })
+        .unwrap_or_else(|| (String::new(), String::new(), String::new()));
+    let sudo = remote.sudo_prefix();
+    let command = format!(
+        "set -e; curl -fsSL --retry 3 https://raw.githubusercontent.com/FelipeBarrosCode/Noland-web/main/instance-gateway/install.sh -o /tmp/noland-web-install.sh; chmod 700 /tmp/noland-web-install.sh; {sudo}env NOLAND_SUNSHINE_USER_B64='{username}' NOLAND_SUNSHINE_PASSWORD_B64='{password}' NOLAND_TURN_URLS_B64='{turn_urls}' NOLAND_TURN_USERNAME_B64='{turn_username}' NOLAND_TURN_CREDENTIAL_B64='{turn_credential}' bash /tmp/noland-web-install.sh"
+    );
+    let output = remote.ssh(&command, Duration::from_secs(1_200))?;
+    if output.status_code != 0 {
+        return Err(AppError::Provisioning(format!(
+            "Noland Web gateway installation failed: {}",
+            if output.stderr.trim().is_empty() {
+                output.stdout.trim()
+            } else {
+                output.stderr.trim()
+            }
+        )));
+    }
+    Ok(())
 }
 
 async fn provision_lifecycle_agent(
@@ -627,7 +685,10 @@ async fn run_orchestration(app: AppHandle, context: AppContext) -> AppResult<()>
 
     let env_vars = serde_json::json!({
         "-e USER": env_user,
-        "-e PASS": env_pass
+        "-e PASS": env_pass,
+        "-p 8080:8080/tcp": "1",
+        "-p 47990:47990/tcp": "1",
+        "-p 40000-40100:40000-40100/udp": "1"
     });
 
     let mut instance = match instance_manager
@@ -1205,6 +1266,46 @@ async fn run_orchestration(app: AppHandle, context: AppContext) -> AppResult<()>
         .await;
     }
     ensure_not_cancelled(&context)?;
+
+    emit_transition(
+        &app,
+        &context,
+        OrchestrationState::ConfiguringSunshine,
+        "Installing the Noland browser streaming gateway",
+        Some("Configuring HTTPS, WebRTC, and the Sunshine handoff".to_string()),
+        false,
+    )
+    .await;
+    ensure_web_gateway(&context, &remote).await?;
+    if super::helper_server::web_client_active() {
+        let gateway_host = if instance.public_ip.trim().is_empty() {
+            instance.ssh_host.clone()
+        } else {
+            instance.public_ip.clone()
+        };
+        context
+            .update_state(|state| {
+                state.moonlight.configured = true;
+                state.moonlight.host_address = gateway_host.clone();
+                state.instance.status = "ready".to_string();
+                state.wireguard.endpoint_host = gateway_host.clone();
+                state.wireguard.endpoint_port = instance.gateway_port;
+            })
+            .await?;
+        emit_transition(
+            &app,
+            &context,
+            OrchestrationState::Ready,
+            "Noland browser gateway is ready",
+            Some(format!(
+                "https://{}:{}/",
+                gateway_host, instance.gateway_port
+            )),
+            false,
+        )
+        .await;
+        return Ok(());
+    }
 
     match vast.get_instance(instance.id).await {
         Ok(refreshed_instance) => {
@@ -2195,6 +2296,46 @@ async fn run_existing_instance_orchestration(
         .await;
     }
     ensure_not_cancelled(&context)?;
+
+    emit_transition(
+        &app,
+        &context,
+        OrchestrationState::ConfiguringSunshine,
+        "Verifying the Noland browser streaming gateway",
+        Some("Installing or repairing the instance gateway when required".to_string()),
+        false,
+    )
+    .await;
+    ensure_web_gateway(&context, &remote).await?;
+    if super::helper_server::web_client_active() {
+        let gateway_host = if instance.public_ip.trim().is_empty() {
+            instance.ssh_host.clone()
+        } else {
+            instance.public_ip.clone()
+        };
+        context
+            .update_state(|state| {
+                state.moonlight.configured = true;
+                state.moonlight.host_address = gateway_host.clone();
+                state.instance.status = "ready".to_string();
+                state.wireguard.endpoint_host = gateway_host.clone();
+                state.wireguard.endpoint_port = instance.gateway_port;
+            })
+            .await?;
+        emit_transition(
+            &app,
+            &context,
+            OrchestrationState::Ready,
+            "Noland browser gateway is ready",
+            Some(format!(
+                "https://{}:{}/",
+                gateway_host, instance.gateway_port
+            )),
+            false,
+        )
+        .await;
+        return Ok(());
+    }
 
     match vast.get_instance(instance.id).await {
         Ok(refreshed_instance) => {

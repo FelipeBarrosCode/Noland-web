@@ -208,6 +208,8 @@ pub struct VastInstance {
     pub network_probe_host_ip: String,
     pub ssh_command: String,
     pub public_ip: String,
+    #[serde(default = "default_gateway_port")]
+    pub gateway_port: u16,
     pub gpu_name: String,
     #[serde(default)]
     pub hourly_price: f64,
@@ -259,6 +261,7 @@ impl VastInstance {
         let network_probe_host_ip =
             extract_host_ip_from_ports(value, &format!("{network_probe_listen_port}/udp"))
                 .unwrap_or_default();
+        let gateway_port = extract_port_from_ports(value, "8080/tcp", default_gateway_port());
 
         let ssh_command = field_as_str(
             value,
@@ -307,6 +310,7 @@ impl VastInstance {
             network_probe_host_ip,
             ssh_command,
             public_ip,
+            gateway_port,
             gpu_name: value
                 .get("gpu_name")
                 .or_else(|| value.get("gpu_model"))
@@ -375,6 +379,10 @@ impl VastInstance {
         }
         self.wireguard_endpoint_host()
     }
+}
+
+fn default_gateway_port() -> u16 {
+    8080
 }
 
 fn is_routable_host_ip(host: &str) -> bool {

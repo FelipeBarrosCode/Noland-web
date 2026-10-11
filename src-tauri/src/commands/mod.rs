@@ -2829,6 +2829,7 @@ pub async fn get_rented_instances(
                 ssh_host: instance.ssh_host,
                 ssh_port: instance.ssh_port,
                 public_ip: instance.public_ip,
+                gateway_port: instance.gateway_port,
                 embedded_moonlight_pipeline_enabled: embedded_enabled,
                 embedded_moonlight_session_state: None,
                 embedded_moonlight_last_error: None,
@@ -4343,6 +4344,32 @@ pub async fn destroy_instance(
     InstanceLifecycleService::destroy_instance(context.inner(), instance_id)
         .await
         .map_err(Into::into)
+}
+
+#[tauri::command]
+pub async fn refresh_instance_web_gateway(
+    context: State<'_, AppContext>,
+    instance_id: u64,
+) -> Result<String, FrontendError> {
+    let remote = build_remote_exec_for_instance(context.inner(), instance_id).await?;
+    crate::services::orchestration::ensure_web_gateway(context.inner(), &remote).await?;
+    let state = context.load_state().await;
+    let vast = VastApiClient::new(
+        context.http_client.clone(),
+        context.config.vast_base_url.clone(),
+        state.credentials.vast_api_key,
+    );
+    let instances = vast.list_instances().await?;
+    let instance = instances
+        .into_iter()
+        .find(|instance| instance.id == instance_id)
+        .ok_or_else(|| AppError::NotFound(format!("Instance {instance_id} is unavailable")))?;
+    let host = if instance.public_ip.trim().is_empty() {
+        instance.ssh_host
+    } else {
+        instance.public_ip
+    };
+    Ok(format!("https://{}:{}/", host, instance.gateway_port))
 }
 
 fn desired_display_profile(
