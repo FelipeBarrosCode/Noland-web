@@ -2,7 +2,7 @@ import {
   isPermissionGranted,
   requestPermission,
   sendNotification,
-} from "@tauri-apps/plugin-notification";
+} from "./notifications";
 import { isNotificationEnabled } from "./notificationPreferences";
 import { translate, translateSource } from "./i18n";
 
@@ -35,6 +35,6 @@ export async function notifyProvisioningUpdate(
       silent: false,
     });
   } catch (error) {
-    console.warn("[provisioning] native notification failed", error);
+    console.warn("[provisioning] notification failed", error);
   }
 }

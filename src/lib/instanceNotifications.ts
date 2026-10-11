@@ -2,7 +2,7 @@ import {
   isPermissionGranted,
   requestPermission,
   sendNotification,
-} from "@tauri-apps/plugin-notification";
+} from "./notifications";
 import { isNotificationEnabled } from "./notificationPreferences";
 import { translate } from "./i18n";
 
@@ -26,6 +26,6 @@ export async function notifyInstancesNeedAttention(instanceCount: number): Promi
       silent: false,
     });
   } catch (error) {
-    console.warn("[instance-monitor] native notification failed", error);
+    console.warn("[instance-monitor] notification failed", error);
   }
 }

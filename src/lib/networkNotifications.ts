@@ -2,7 +2,7 @@ import {
   isPermissionGranted,
   requestPermission,
   sendNotification,
-} from "@tauri-apps/plugin-notification";
+} from "./notifications";
 import { isNotificationEnabled } from "./notificationPreferences";
 import { translate } from "./i18n";
 
@@ -59,7 +59,7 @@ export async function notifyBadConnection(event: NetworkStatusEvent): Promise<vo
       });
     }
   } catch (error) {
-    console.warn("[network-monitor] native notification failed", error);
+    console.warn("[network-monitor] notification failed", error);
   }
 
   try {

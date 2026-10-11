@@ -4,7 +4,7 @@ import {
   isPermissionGranted,
   requestPermission,
   sendNotification,
-} from "@tauri-apps/plugin-notification";
+} from "../lib/notifications";
 import { playArcadeSuccess } from "../lib/arcadeAudio";
 import { isNotificationEnabled } from "../lib/notificationPreferences";
 import { notifyProvisioningUpdate } from "../lib/provisioningNotifications";
