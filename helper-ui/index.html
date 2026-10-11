@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Noland Helper</title>
+  </head>
+  <body hidden>
+    <script>
+      (() => {
+        const tauri = window.__TAURI__;
+        if (!tauri?.core?.invoke || !tauri?.event?.listen) return;
+        const invoke = tauri.core.invoke;
+        const listen = tauri.event.listen;
+
+        void listen("helper:rpc-request", async ({ payload }) => {
+          try {
+            const result = await invoke(payload.command, payload.args || {});
+            await invoke("helper_rpc_respond", {
+              id: payload.id,
+              result: result ?? null,
+              error: null,
+            });
+          } catch (error) {
+            await invoke("helper_rpc_respond", {
+              id: payload.id,
+              result: null,
+              error: error instanceof Error ? error.message : String(error),
+            });
+          }
+        });
+
+        for (const eventName of [
+          "orchestration:progress",
+          "direct-upload:progress",
+          "shared-storage:progress",
+          "shared-storage:restore-completed",
+          "remote-terminal-output",
+          "remote-terminal-closed",
+        ]) {
+          void listen(eventName, ({ payload }) => {
+            void invoke("helper_publish_event", { event: eventName, payload });
+          });
+        }
+
+        void invoke("helper_bridge_ready");
+      })();
+    </script>
+  </body>
+</html>

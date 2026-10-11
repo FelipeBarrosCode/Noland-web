@@ -42,7 +42,7 @@ jobs:
           NOLAND_REQUIRE_SIGNED_RELEASE: "0"
         run: >-
           npm run tauri:build -- --target aarch64-apple-darwin --bundles app,dmg
-          --config '{"bundle":{"createUpdaterArtifacts":false}}'
+          --config src-tauri/tauri.helper.conf.json
       - name: Collect helper installer
         run: |
           mkdir -p helper-release
@@ -85,7 +85,9 @@ jobs:
       - name: Build helper Linux packages
         env:
           NOLAND_REQUIRE_SIGNED_RELEASE: "0"
-        run: npm run tauri:build -- --target x86_64-unknown-linux-gnu --bundles deb,appimage
+        run: >-
+          npm run tauri:build -- --target x86_64-unknown-linux-gnu --bundles deb,appimage
+          --config src-tauri/tauri.helper.conf.json
       - name: Repair AppImage entry point
         run: bash scripts/fix-appimage-metadata.sh src-tauri/target/x86_64-unknown-linux-gnu/release/bundle x64
       - name: Collect helper installers
@@ -127,7 +129,9 @@ jobs:
       - run: node scripts/stage-ci-managed-tools.mjs --target x86_64-pc-windows-msvc
       - name: Build helper Windows installer
         shell: pwsh
-        run: npm run tauri:build -- --target x86_64-pc-windows-msvc --bundles nsis
+        run: >-
+          npm run tauri:build -- --target x86_64-pc-windows-msvc --bundles nsis
+          --config src-tauri/tauri.helper.conf.json
       - name: Collect helper installer
         shell: pwsh
         run: |

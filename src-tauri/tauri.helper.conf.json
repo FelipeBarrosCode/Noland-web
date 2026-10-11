@@ -1,0 +1,23 @@
+{
+  "build": {
+    "beforeBuildCommand": "",
+    "frontendDist": "../helper-ui"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "label": "main",
+        "title": "Noland Helper",
+        "visible": false,
+        "width": 1,
+        "height": 1,
+        "minWidth": 1,
+        "minHeight": 1,
+        "resizable": false,
+        "fullscreen": false,
+        "skipTaskbar": true
+      }
+    ]
+  }
+}
