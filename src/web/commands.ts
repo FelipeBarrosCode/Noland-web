@@ -1,6 +1,9 @@
 import type {
   CloudflareTurnSettingsResponse,
   ManualLocationInput,
+  InstanceMicConfig,
+  InstanceMicRuntimeStatus,
+  MicSettingsUpdate,
   MoonlightPreferences,
   OnboardingPayload,
   OfferCandidate,
@@ -20,6 +23,64 @@ import {
 
 const offerCache = new Map<number, OfferCandidate>();
 const provisioningLog: ProvisioningEvent[] = [];
+const microphoneConfigs = new Map<number, InstanceMicConfig>();
+
+function defaultMicrophoneConfig(instanceId: number): InstanceMicConfig {
+  return microphoneConfigs.get(instanceId) ?? {
+    instanceId,
+    enabled: false,
+    forwardingEnabled: false,
+    autoConnect: false,
+    transport: "webrtc",
+    codec: "opus",
+    sampleRate: 48_000,
+    channels: 1,
+    vmWireguardIp: "",
+    rtpPort: 0,
+    rtcpPort: 0,
+    localRtcpPort: 0,
+    rtpPayloadType: 111,
+    deviceId: "default",
+    deviceName: "Browser default microphone",
+    qualityProfile: "standard",
+    sessionId: null,
+    sessionToken: null,
+    ssrc: null,
+    lastEnabledAt: null,
+    lastDisabledAt: null,
+  };
+}
+
+function disabledMicrophoneStatus(): InstanceMicRuntimeStatus {
+  return {
+    enabled: false,
+    state: "disabled",
+    reconnectCount: 0,
+    vmAgentReachable: false,
+    deviceReady: false,
+    receivingAudio: false,
+    transport: "webrtc",
+    sampleRate: 48_000,
+    channels: 1,
+    bitrateKbps: 64,
+    frameMs: 20,
+    packetLossPercent: 0,
+    jitterMs: 0,
+    bufferDepthMs: 0,
+    lastPacketMsAgo: null,
+    pipewireConnected: false,
+    defaultSource: false,
+    muted: false,
+    sidecarHealthy: false,
+    captureSampleRate: 48_000,
+    captureOverruns: 0,
+    ringFillMs: 0,
+    appsrcQueueMs: 0,
+    opusPacketsSent: 0,
+    bytesSent: 0,
+    error: null,
+  };
+}
 
 function argument<T>(args: Record<string, unknown> | undefined, key: string): T {
   if (!args || !(key in args)) throw new Error(`Missing command argument: ${key}`);
@@ -274,9 +335,98 @@ export async function invokeWebCommand<T>(
     }
     case "get_cloudflare_turn_settings":
       return turnSettings((await loadWebState()).cloudflareTurn.enabled) as T;
+    case "get_auto_shutdown_settings":
+      return (await loadWebState()).autoShutdown as T;
+    case "save_auto_shutdown_settings": {
+      const settings = argument<{ enabled: boolean; inactivityHours: number; backupAppLimit: number }>(args, "settings");
+      return await updateWebState((state) => { state.autoShutdown.settings = settings; }) as T;
+    }
+    case "get_shared_storage_profiles":
+      return ((await loadWebState()).sharedStorageProfiles ?? []) as T;
+    case "get_shared_storage_settings": {
+      const settings = (await loadWebState()).sharedStorage.settings;
+      return { ...settings, cryptPasswordSet: false } as T;
+    }
+    case "list_storage_providers":
+      return [] as T;
+    case "get_instance_backup_status":
+      return {
+        instanceId: (await loadWebState()).instance.instanceId,
+        configured: false,
+        state: "unavailable",
+        lastBackupAt: null,
+        lastError: "Shared storage has not been ported to the browser gateway.",
+      } as T;
+    case "get_instance_connection_status": {
+      const instanceId = argument<number>(args, "instanceId");
+      return {
+        instanceId,
+        network: {
+          schemaVersion: 1,
+          clientRevision: 0,
+          updatedAt: null,
+          preference: "auto",
+          activeTransport: null,
+          fallbackReason: null,
+          direct: { endpoint: null, probeEndpoint: null, effectiveMtu: null, availability: "unknown" },
+          cloudflareTurn: {
+            enabled: false,
+            credentialRef: null,
+            relayEndpoint: null,
+            allocationGeneration: 0,
+            allocationExpiresAt: null,
+            credentialExpiresAt: null,
+            effectiveMtu: null,
+            availability: "unknown",
+          },
+          lastEvaluation: null,
+          lastTransition: null,
+          connectionProfile: null,
+        },
+        manualTurnSwitchingEnabled: false,
+        automaticSelectionEnabled: true,
+      } as T;
+    }
+    case "moonlight_get_session_state":
+      return { state: "idle", error: null } as T;
+    case "moonlight_get_active_input_mode":
+      return "browser" as T;
+    case "moonlight_get_input_debug_state":
+      return {} as T;
+    case "network_monitor_get_state":
+      return null as T;
+    case "set_instance_performance_overlay":
+      return argument<boolean>(args, "enabled") as T;
+    case "set_instance_moonlight_pipeline_enabled":
+      return await loadWebState() as T;
+    case "get_software_artwork":
+      return { key: String(args?.name ?? ""), imageUrl: null, source: "none" } as T;
+    case "get_instance_launch_library": {
+      const instanceId = argument<number>(args, "instanceId");
+      return { instanceId, launchPcAvailable: false, items: [] } as T;
+    }
+    case "list_remote_upload_folders":
+      return { path: "/", homePath: "/home/user", folders: [] } as T;
+    case "list_instance_shared_storage_objects":
+    case "list_instance_exportable_storage_objects":
+      return [] as T;
+    case "get_launch_instance_software_job":
+      return null as T;
     case "start_local_sleep_prevention":
     case "stop_local_sleep_prevention":
       return "Browser wake-lock lifecycle is managed by the stream view." as T;
+    case "moonlight_start_input_capture":
+    case "moonlight_stop_input_capture":
+    case "moonlight_activate_native_mouse_capture":
+    case "moonlight_deactivate_native_mouse_capture":
+      return false as T;
+    case "moonlight_update_video_geometry":
+    case "moonlight_send_relative_mouse":
+    case "moonlight_send_absolute_mouse":
+    case "moonlight_send_mouse_button":
+    case "moonlight_send_keyboard":
+    case "moonlight_disconnect_stream":
+      return undefined as T;
     case "stop_provisioning_after_current_stage":
       return undefined as T;
     case "moonlight_get_instance_pipeline_status": {
@@ -298,6 +448,69 @@ export async function invokeWebCommand<T>(
         lastRuntimeEvent: null,
       } as T;
     }
+    case "get_instance_mic_config": {
+      const instanceId = argument<number>(args, "instanceId");
+      return defaultMicrophoneConfig(instanceId) as T;
+    }
+    case "update_instance_mic_settings": {
+      const instanceId = argument<number>(args, "instanceId");
+      const payload = argument<MicSettingsUpdate>(args, "payload");
+      const current = defaultMicrophoneConfig(instanceId);
+      const updated: InstanceMicConfig = {
+        ...current,
+        deviceId: payload.deviceId ?? current.deviceId,
+        deviceName: payload.deviceId && payload.deviceId !== current.deviceId
+          ? "Browser microphone"
+          : current.deviceName,
+        qualityProfile: payload.qualityProfile ?? current.qualityProfile,
+        forwardingEnabled: payload.forwardingEnabled ?? current.forwardingEnabled,
+        autoConnect: payload.autoConnect ?? current.autoConnect,
+      };
+      microphoneConfigs.set(instanceId, updated);
+      return updated as T;
+    }
+    case "get_instance_mic_status":
+      return disabledMicrophoneStatus() as T;
+    case "list_microphones": {
+      if (!navigator.mediaDevices?.enumerateDevices) return [] as T;
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      return devices
+        .filter((device) => device.kind === "audioinput")
+        .map((device, index) => ({
+          id: device.deviceId || `browser-microphone-${index}`,
+          name: device.label || `Microphone ${index + 1}`,
+          isDefault: device.deviceId === "default" || index === 0,
+          sampleRates: [48_000],
+          channels: 1,
+        })) as T;
+    }
+    case "disable_instance_mic":
+    case "mute_instance_mic":
+    case "unmute_instance_mic":
+    case "recreate_instance_mic_device":
+      return undefined as T;
+    case "get_instance_mic_metrics":
+      return {
+        capturedSamples: 0,
+        consumedSamples: 0,
+        droppedStaleSamples: 0,
+        overruns: 0,
+        underruns: 0,
+        silenceSamples: 0,
+        buffersPushed: 0,
+        captureRestarts: 0,
+        captureErrors: 0,
+        pipelineErrors: 0,
+        ringDepthSamples: 0,
+        appsrcQueueMs: 0,
+        opusPacketsSent: 0,
+        bytesSent: 0,
+        currentRtpSequence: null,
+        sampledAtUnixMs: Date.now(),
+      } as T;
+    case "enable_instance_mic":
+    case "reconnect_instance_mic":
+      throw new Error("Browser microphone forwarding will be enabled after the gateway session is connected.");
     default:
       throw new Error(`The browser port does not support '${command}' yet.`);
   }
