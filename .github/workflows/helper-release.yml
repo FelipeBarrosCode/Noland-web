@@ -2,12 +2,20 @@ name: Build Noland Helper
 
 on:
   workflow_dispatch:
+    inputs:
+      platform:
+        description: Helper platform to build
+        type: choice
+        required: true
+        default: all
+        options: [all, macos, linux, windows]
 
 permissions:
   contents: write
 
 jobs:
   macos-arm64:
+    if: inputs.platform == 'all' || inputs.platform == 'macos'
     runs-on: macos-15
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
@@ -50,6 +58,7 @@ jobs:
           files: helper-release/*
 
   linux-x64:
+    if: inputs.platform == 'all' || inputs.platform == 'linux'
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
@@ -96,6 +105,7 @@ jobs:
           files: helper-release/*
 
   windows-x64:
+    if: inputs.platform == 'all' || inputs.platform == 'windows'
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
