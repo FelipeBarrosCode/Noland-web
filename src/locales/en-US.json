@@ -1176,4 +1176,9 @@
   ,"web.helper.install": "Download Noland Helper"
   ,"web.helper.retry": "Check again"
   ,"web.helper.handoff": "After the one-time OS installation, the helper starts automatically and this page continues without another setup step."
+  ,"web.helper.permissionTitle": "Allow access to Noland Helper"
+  ,"web.helper.permissionDescription": "Chrome needs one-time permission to connect this secure website to the Noland Helper running on your device."
+  ,"web.helper.blockedTitle": "Local helper access is blocked"
+  ,"web.helper.blockedDescription": "Click the site controls icon beside the address, open Site settings, set Local network access or Apps on device to Allow, then reload this page."
+  ,"web.helper.allowAccess": "Allow local access"
 }

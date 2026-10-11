@@ -2,6 +2,7 @@ const HELPER_BASE = "http://127.0.0.1:43127";
 
 let sessionToken: string | null = null;
 export type HelperAvailability = "missing" | "starting" | "ready";
+export type LoopbackPermission = PermissionState | "unsupported";
 
 let helperAvailability: HelperAvailability | null = null;
 let eventSource: EventSource | null = null;
@@ -24,16 +25,28 @@ async function withTimeout<T>(promise: Promise<T>, milliseconds: number): Promis
 export async function getHelperAvailability(force = false): Promise<HelperAvailability> {
   if (!force && helperAvailability !== null) return helperAvailability;
   try {
-    const response = await withTimeout(fetch(`${HELPER_BASE}/v1/health`, {
+    const requestOptions: RequestInit & { targetAddressSpace?: "loopback" } = {
       cache: "no-store",
       headers: { accept: "application/json" },
-    }), 800);
+      targetAddressSpace: "loopback",
+    };
+    const response = await withTimeout(fetch(`${HELPER_BASE}/v1/health`, requestOptions), 800);
     const body = response.ok ? await response.json() as { ready?: boolean } : null;
     helperAvailability = !response.ok ? "missing" : body?.ready === true ? "ready" : "starting";
   } catch {
     helperAvailability = "missing";
   }
   return helperAvailability;
+}
+
+export async function getLoopbackPermission(): Promise<LoopbackPermission> {
+  if (!navigator.permissions?.query) return "unsupported";
+  try {
+    const permission = await navigator.permissions.query({ name: "loopback-network" as PermissionName });
+    return permission.state;
+  } catch {
+    return "unsupported";
+  }
 }
 
 export async function isHelperAvailable(force = false): Promise<boolean> {
