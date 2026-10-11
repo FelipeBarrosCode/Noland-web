@@ -174,6 +174,12 @@ export async function invokeWebCommand<T>(
     case "complete_onboarding": {
       const payload = argument<OnboardingPayload>(args, "payload");
       if (!payload.vastApiKey.trim()) throw new Error("A Vast.ai API key is required.");
+      if (!/^[A-Za-z0-9_.-]{1,64}$/u.test(payload.appUsername)) {
+        throw new Error("The Noland username may contain letters, numbers, dots, underscores, and hyphens.");
+      }
+      if (payload.appPassword.length < 8) {
+        throw new Error("The Noland password must contain at least 8 characters.");
+      }
       await getVastWallet(payload.vastApiKey);
       return await updateWebState((state) => {
         state.onboardingCompleted = true;

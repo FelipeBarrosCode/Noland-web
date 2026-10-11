@@ -23,7 +23,7 @@ esac
 
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -y
-apt-get install -y --no-install-recommends ca-certificates curl openssl tar python3 pipewire pipewire-pulse wireplumber
+apt-get install -y --no-install-recommends ca-certificates curl openssl tar python3 pipewire pipewire-pulse wireplumber nginx apache2-utils
 
 work_dir=$(mktemp -d)
 trap 'rm -rf "$work_dir"' EXIT
@@ -140,11 +140,8 @@ cat > "$CONFIG_ROOT/config.json" <<EOF
     "include_loopback_candidates": false
   },
   "web_server": {
-    "bind_address": "0.0.0.0:8080",
-    "certificate": {
-      "private_key_pem": "${CONFIG_ROOT}/tls/key.pem",
-      "certificate_pem": "${CONFIG_ROOT}/tls/cert.pem"
-    },
+    "bind_address": "127.0.0.1:8081",
+    "certificate": null,
     "url_path_prefix": "",
     "session_cookie_secure": true,
     "session_cookie_expiration": { "secs": 86400, "nanos": 0 },
@@ -152,7 +149,10 @@ cat > "$CONFIG_ROOT/config.json" <<EOF
     "first_login_assign_global_hosts": true,
     "default_user_id": null,
     "default_role_id": null,
-    "forwarded_header": null
+    "forwarded_header": {
+      "username_header": "X-Noland-User",
+      "auto_create_missing_user": true
+    }
   },
   "moonlight": {},
   "streamer_path": "${INSTALL_ROOT}/streamer",
@@ -160,6 +160,43 @@ cat > "$CONFIG_ROOT/config.json" <<EOF
   "default_settings": null
 }
 EOF
+
+htpasswd -i -c "$CONFIG_ROOT/htpasswd" "$sunshine_user" <<<"$sunshine_password"
+chmod 0600 "$CONFIG_ROOT/htpasswd"
+
+cat > /etc/nginx/sites-available/noland-web-gateway <<EOF
+map \$http_upgrade \$connection_upgrade {
+  default upgrade;
+  '' close;
+}
+
+server {
+  listen 8080 ssl;
+  listen [::]:8080 ssl;
+  server_name _;
+
+  ssl_certificate ${CONFIG_ROOT}/tls/cert.pem;
+  ssl_certificate_key ${CONFIG_ROOT}/tls/key.pem;
+  ssl_protocols TLSv1.2 TLSv1.3;
+
+  auth_basic "Noland Web";
+  auth_basic_user_file ${CONFIG_ROOT}/htpasswd;
+
+  location / {
+    proxy_pass http://127.0.0.1:8081;
+    proxy_http_version 1.1;
+    proxy_set_header Host \$host;
+    proxy_set_header X-Forwarded-Proto https;
+    proxy_set_header X-Noland-User \$remote_user;
+    proxy_set_header Upgrade \$http_upgrade;
+    proxy_set_header Connection \$connection_upgrade;
+    proxy_read_timeout 86400;
+  }
+}
+EOF
+rm -f /etc/nginx/sites-enabled/default
+ln -sfn /etc/nginx/sites-available/noland-web-gateway /etc/nginx/sites-enabled/noland-web-gateway
+nginx -t
 
 cat > /etc/systemd/system/noland-web-gateway.service <<EOF
 [Unit]
@@ -186,10 +223,11 @@ EOF
 systemctl daemon-reload
 systemctl enable --now sunshine.service
 systemctl enable --now noland-web-gateway.service
+systemctl enable --now nginx.service
 
 gateway_ready=0
 for _ in $(seq 1 30); do
-  if curl -kfsS --connect-timeout 2 https://127.0.0.1:8080/ >/dev/null 2>&1; then
+  if curl -kfsS -u "$sunshine_user:$sunshine_password" --connect-timeout 2 https://127.0.0.1:8080/ >/dev/null 2>&1; then
     gateway_ready=1
     break
   fi
