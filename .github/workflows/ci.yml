@@ -31,3 +31,5 @@ jobs:
         run: bash -n instance-gateway/install.sh
       - name: Validate Worker bundle
         run: npx --yes wrangler deploy --dry-run --config worker/wrangler.jsonc
+      - name: Ensure browser backend coverage does not regress
+        run: node scripts/check-web-command-coverage.mjs

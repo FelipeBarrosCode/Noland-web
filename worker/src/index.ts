@@ -44,6 +44,15 @@ export default {
     if (!ALLOWED_METHODS.has(request.method)) return response(request, env, "Method not allowed", 405);
 
     const incoming = new URL(request.url);
+    if (incoming.pathname === "/api/health") {
+      return new Response(JSON.stringify({
+        ok: true,
+        service: "noland-web-api",
+        timestamp: new Date().toISOString(),
+      }), {
+        headers: { ...cors(request, env), "content-type": "application/json" },
+      });
+    }
     if (!incoming.pathname.startsWith("/api/vast/")) return env.ASSETS.fetch(request);
     const upstreamPath = incoming.pathname.slice("/api/vast".length);
     if (!ALLOWED_PREFIXES.some((prefix) => upstreamPath.startsWith(prefix))) {

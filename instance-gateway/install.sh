@@ -187,6 +187,21 @@ systemctl daemon-reload
 systemctl enable --now sunshine.service
 systemctl enable --now noland-web-gateway.service
 
+gateway_ready=0
+for _ in $(seq 1 30); do
+  if curl -kfsS --connect-timeout 2 https://127.0.0.1:8080/ >/dev/null 2>&1; then
+    gateway_ready=1
+    break
+  fi
+  sleep 2
+done
+if [[ "$gateway_ready" != 1 ]]; then
+  systemctl status noland-web-gateway.service --no-pager || true
+  journalctl -u noland-web-gateway.service --no-pager -n 100 || true
+  echo "Noland Web gateway did not become ready." >&2
+  exit 1
+fi
+
 cat > "$STATE_ROOT/install.json" <<EOF
 {"version":"${VERSION}","target":"${target}","sunshineUser":"${sunshine_user}","installedAt":"$(date -u +%FT%TZ)"}
 EOF
