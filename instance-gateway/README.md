@@ -12,7 +12,9 @@ accepts the authenticated identity header from Nginx, and creates the correspond
 local administrator without a separate Moonlight Web account-registration screen.
 
 Sunshine is installed beside the gateway and receives the same local credentials.
-Sunshine pairing remains an explicit step before the first stream.
+Sunshine pairing remains an explicit step before the first stream. Port `47990/tcp`
+is published for Sunshine's HTTPS administration page; use the same Noland username
+and password to submit the PIN displayed by the Moonlight Web gateway.
 
 Production deployments should provide a trusted certificate or Cloudflare Tunnel
 hostname instead of relying on the generated 30-day bootstrap certificate.

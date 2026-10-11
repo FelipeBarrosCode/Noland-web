@@ -254,6 +254,7 @@ export async function createVastInstance(
     cancel_unavail: true,
     env: [
       "-p 8080:8080/tcp",
+      "-p 47990:47990/tcp",
       "-p 40000-40100:40000-40100/udp",
       `-e NOLAND_SUNSHINE_USER_B64=${base64(sunshineUsername || "noland")}`,
       `-e NOLAND_SUNSHINE_PASSWORD_B64=${base64(sunshinePassword)}`,
