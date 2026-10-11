@@ -109,6 +109,13 @@ fn main() {
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_autostart::Builder::new().args(["--helper"]).build())
         .setup(|app| {
+            // Bind the loopback health endpoint before loading encrypted state. On macOS,
+            // Keychain can pause initialization while the OS requests access after an app
+            // update; the browser must still be able to distinguish that from a missing helper.
+            let helper_bridge = services::helper_server::HelperBridge::new(app.handle().clone());
+            app.manage(helper_bridge.clone());
+            tauri::async_runtime::spawn(services::helper_server::run(helper_bridge));
+
             if let Err(error) = app.autolaunch().enable() {
                 warn!(%error, "failed to enable Noland Helper at login");
             }
@@ -480,9 +487,6 @@ fn main() {
             app.manage(artwork_service);
             app.manage(network_monitor::NetworkMonitor::default());
             app.manage(moonlight::platform::StreamWindowCloseState::default());
-            let helper_bridge = services::helper_server::HelperBridge::new(app.handle().clone());
-            app.manage(helper_bridge.clone());
-            tauri::async_runtime::spawn(services::helper_server::run(helper_bridge));
             if std::env::args().any(|argument| argument == "--helper") {
                 if let Some(window) = app.get_webview_window("main") {
                     let _ = window.hide();
