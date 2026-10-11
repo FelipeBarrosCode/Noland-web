@@ -8,7 +8,8 @@ import {
 import { playArcadeSuccess } from "../lib/arcadeAudio";
 import { isNotificationEnabled } from "../lib/notificationPreferences";
 import { notifyProvisioningUpdate } from "../lib/provisioningNotifications";
-import { openUrl } from "@tauri-apps/plugin-opener";
+import { openExternalUrl as openUrl } from "../lib/openExternal";
+import { isRunningInTauri } from "../lib/tauri";
 import {
   completeOnboarding,
   getAppState,
@@ -1372,6 +1373,12 @@ export const useAppStore = create<AppStore>((set, get) => {
       beginProvisioningBlock(translate("generated.39caee49c0f6c0c0"));
       try {
         const mode = await startPlayExistingInstance(instanceId);
+
+        if (!isRunningInTauri() && /^https?:\/\//u.test(mode)) {
+          window.open(mode, "_blank", "noopener,noreferrer");
+          endProvisioningBlock();
+          return mode;
+        }
 
         const appState = await getAppState();
         const embeddedMoonlightStatus = await getInstanceMoonlightPipelineStatus(instanceId).catch(() => null);

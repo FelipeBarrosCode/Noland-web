@@ -1163,5 +1163,6 @@
   "generated.619a9c9311e479e1": "State mismatch — 다시 시도하십시오.",
   "generated.e5d2f74dcea05591": "세션이 없습니다 - 다시 시도하십시오.",
   "generated.b1bdd96c50fd0389": "인증 코드 없음.",
-  "status.waiting.instance": "인스턴스 대기 중"
+  "status.waiting.instance": "인스턴스 대기 중",
+  "web.runtimeNotice": "Noland Web은 이 브라우저에서 계정 및 인스턴스 작업을 실행합니다. 네이티브 저장소, 마이크, 터미널 및 디스플레이 도구는 아직 포팅 중입니다."
 }

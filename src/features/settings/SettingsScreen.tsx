@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { openUrl } from "@tauri-apps/plugin-opener";
+import { openExternalUrl as openUrl } from "../../lib/openExternal";
 import { errorMessage } from "../../lib/errorMessage";
 import { AIPromptHelper } from "../../components/ui/AIPromptHelper";
 import { APP_PROMPTS } from "../../prompts/appPrompts";

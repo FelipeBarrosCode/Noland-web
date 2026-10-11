@@ -1,11 +1,11 @@
 <div align="center">
 
-# No Land
+# Noland Web
 
-### Turn on-demand GPU cloud machines into personal remote gaming PCs.
+### Browser orchestration and WebRTC streaming for on-demand GPU machines.
 
-[![Rust](https://img.shields.io/badge/Rust-Tauri-000000?logo=rust)](https://www.rust-lang.org/)
-[![Tauri](https://img.shields.io/badge/Tauri-2-24C8DB?logo=tauri&logoColor=white)](https://tauri.app/)
+[![WebRTC](https://img.shields.io/badge/WebRTC-streaming-333333?logo=webrtc)](https://webrtc.org/)
+[![Cloudflare](https://img.shields.io/badge/Cloudflare-Worker-F38020?logo=cloudflare&logoColor=white)](https://workers.cloudflare.com/)
 [![React](https://img.shields.io/badge/React-TypeScript-20232a?logo=react)](https://react.dev/)
 [![Linux](https://img.shields.io/badge/Linux-Ubuntu-FCC624?logo=linux&logoColor=black)](https://ubuntu.com/)
 [![WireGuard](https://img.shields.io/badge/WireGuard-Networking-88171A?logo=wireguard)](https://www.wireguard.com/)
@@ -17,6 +17,15 @@
 </div>
 
 ---
+
+> **Port status:** the browser foundation supports local browser state, Vast.ai onboarding,
+> offer discovery, instance lifecycle reconciliation, instance creation, and installation
+> of a pinned Moonlight Web gateway on the rented instance. Native-only settings remain
+> visible while they are progressively replaced; unsupported commands return explicit
+> errors instead of silently invoking Tauri.
+
+See [`WEB_PORT_PLAN.md`](WEB_PORT_PLAN.md) for production milestones and
+[`instance-gateway/README.md`](instance-gateway/README.md) for the rented-instance gateway.
 
 ## Why No Land exists
 

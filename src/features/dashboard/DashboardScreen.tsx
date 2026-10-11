@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { AIPromptHelper } from "../../components/ui/AIPromptHelper";
 import { APP_PROMPTS } from "../../prompts/appPrompts";
 import { useNavigate } from "react-router-dom";
-import { openUrl } from "@tauri-apps/plugin-opener";
+import { openExternalUrl as openUrl } from "../../lib/openExternal";
 import { ArcadeSoundToggle } from "../../components/ui/ArcadeSoundToggle";
 import type { BlockingActionState } from "../../components/ui/BlockingLoaderOverlay";
 import { Button } from "../../components/ui/Button";

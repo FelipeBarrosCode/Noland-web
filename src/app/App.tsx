@@ -2,7 +2,7 @@ import { translate, translateSource, useLocalization } from "../lib/i18n";
 import { useEffect, useRef, useState } from "react";
 
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import { openUrl } from "@tauri-apps/plugin-opener";
+import { openExternalUrl as openUrl } from "../lib/openExternal";
 import { exit as exitApp } from "@tauri-apps/plugin-process";
 import { BlockingLoaderOverlay } from "../components/ui/BlockingLoaderOverlay";
 import { HashRouter, Navigate, Route, Routes } from "react-router-dom";
@@ -627,7 +627,7 @@ export function App() {
   }, [bindEvents, initialize, windowLabel, windowLabelResolved]);
 
   useEffect(() => {
-    if (!windowLabelResolved || windowLabel !== "main" || loading) {
+    if (!windowLabelResolved || windowLabel !== "main" || loading || !isRunningInTauri()) {
       return;
     }
 
@@ -940,6 +940,12 @@ export function App() {
                 : undefined
             }
           />
+        </div>
+      )}
+
+      {!isRunningInTauri() && (
+        <div className="border-b-2 border-[#2aa89b] bg-[#102d35] px-4 py-2 text-center text-sm text-[#bffbf2]">
+          {translate("web.runtimeNotice")}
         </div>
       )}
 

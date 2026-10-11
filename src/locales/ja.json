@@ -1163,5 +1163,6 @@
   "generated.619a9c9311e479e1": "状態の不一致 — もう一度お試しください。",
   "generated.e5d2f74dcea05591": "セッションが見つかりません。",
   "generated.b1bdd96c50fd0389": "認証コードは取得できません。",
-  "status.waiting.instance": "インスタンスを待機中"
+  "status.waiting.instance": "インスタンスを待機中",
+  "web.runtimeNotice": "Noland Web はこのブラウザーでアカウントとインスタンスの操作を実行します。ネイティブのストレージ、マイク、ターミナル、ディスプレイ機能は現在移植中です。"
 }

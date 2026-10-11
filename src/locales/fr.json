@@ -1163,5 +1163,6 @@
   "generated.619a9c9311e479e1": "Inadéquation de l'état — veuillez réessayer.",
   "generated.e5d2f74dcea05591": "La séance n'a pas été trouvée — veuillez réessayer.",
   "generated.b1bdd96c50fd0389": "Aucun code d'autorisation reçu.",
-  "status.waiting.instance": "En attente de l’instance"
+  "status.waiting.instance": "En attente de l’instance",
+  "web.runtimeNotice": "Noland Web exécute les opérations de compte et d’instance dans ce navigateur. Les outils natifs de stockage, microphone, terminal et affichage sont encore en cours de portage."
 }

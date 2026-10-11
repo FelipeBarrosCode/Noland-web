@@ -1,5 +1,7 @@
 import { listen } from "@tauri-apps/api/event";
 import { invokeSafe } from "./tauri";
+import { isRunningInTauri } from "./tauri";
+import { listenWebEvent } from "../web/events";
 import { getActiveLocale, translate } from "./i18n";
 import type {
   AutoShutdownSettings,
@@ -212,7 +214,8 @@ export async function listRemoteUploadFolders(
 export async function subscribeDirectUploadProgress(
   callback: (event: DirectUploadProgressEvent) => void,
 ): Promise<() => void> {
-  return listen<DirectUploadProgressEvent>("direct-upload:progress", ({ payload }) => {
+  const subscribe = isRunningInTauri() ? listen : listenWebEvent;
+  return subscribe<DirectUploadProgressEvent>("direct-upload:progress", ({ payload }) => {
     callback(payload);
   });
 }
@@ -636,7 +639,8 @@ export async function updateSshCredentials(
 export async function subscribeProvisioningEvents(
   callback: (event: ProvisioningEvent) => void,
 ): Promise<() => void> {
-  const unlisten = await listen<ProvisioningEvent>(
+  const subscribe = isRunningInTauri() ? listen : listenWebEvent;
+  const unlisten = await subscribe<ProvisioningEvent>(
     "orchestration:progress",
     ({ payload }) => {
       callback(payload);
@@ -797,7 +801,8 @@ export async function listInstanceExportableStorageObjects(instanceId: number) {
 export async function subscribeSharedStorageRestoreCompleted(
   callback: (event: SharedStorageRestoreCompletedEvent) => void,
 ): Promise<() => void> {
-  const unlisten = await listen<SharedStorageRestoreCompletedEvent>(
+  const subscribe = isRunningInTauri() ? listen : listenWebEvent;
+  const unlisten = await subscribe<SharedStorageRestoreCompletedEvent>(
     "shared-storage:restore-completed",
     ({ payload }) => {
       callback(payload);
@@ -811,7 +816,8 @@ export async function subscribeSharedStorageRestoreCompleted(
 export async function subscribeSharedStorageProgress(
   callback: (event: SharedStorageProgressEvent) => void,
 ): Promise<() => void> {
-  const unlisten = await listen<SharedStorageProgressEvent>(
+  const subscribe = isRunningInTauri() ? listen : listenWebEvent;
+  const unlisten = await subscribe<SharedStorageProgressEvent>(
     "shared-storage:progress",
     ({ payload }) => {
       callback(payload);

@@ -45,6 +45,26 @@ Moonlight protocol implementation.
 
 ## Implementation phases
 
+## Current implementation status
+
+- [x] Browser-safe command transport replacing Tauri invocation for core flows.
+- [x] IndexedDB state with the Vast API key limited to session storage.
+- [x] Same-origin Cloudflare Worker proxy with an explicit Vast endpoint allowlist.
+- [x] Vast onboarding validation, offer search, selection, wallet, instance listing,
+  creation, deletion, and deleted-instance reconciliation.
+- [x] Pinned Moonlight Web Stream gateway source and verified binary installer.
+- [x] Rented-instance bootstrap for Sunshine, TLS, WebRTC ports, and systemd services.
+- [x] Web-only CI and Cloudflare Worker/static asset deployment configuration.
+- [ ] Replace Moonlight Web's initial local administrator flow with Noland-scoped tokens.
+- [ ] Automate Sunshine pairing from the Noland browser session.
+- [ ] Add trusted per-instance TLS hostnames instead of bootstrap self-signed certificates.
+- [ ] Port terminal, uploads, shared storage, microphone, and display controls.
+- [ ] Complete browser matrix, NAT/TURN, reconnect, and destructive lifecycle tests.
+
+The checked items form the first deployable browser control and gateway slice. The
+unchecked security and feature work remains required before declaring feature parity
+with the native clients.
+
 ### Phase 1: Gateway proof of concept
 
 1. Build Moonlight Web Stream for the supported Linux target.

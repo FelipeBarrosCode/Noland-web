@@ -561,6 +561,7 @@ export interface RentedInstanceSummary {
   sshHost: string;
   sshPort: number;
   publicIp: string;
+  gatewayPort?: number;
   embeddedMoonlightPipelineEnabled: boolean;
   embeddedMoonlightSessionState?: string | null;
   embeddedMoonlightLastError?: string | null;

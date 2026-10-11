@@ -1,5 +1,5 @@
 {
-  "name": "noland-connect",
+  "name": "noland-web",
   "private": true,
   "version": "0.1.17",
   "type": "module",
@@ -9,6 +9,7 @@
     "i18n:check": "node scripts/i18n-check.mjs",
     "test:unit": "cargo test --locked --manifest-path network-contracts/Cargo.toml && cargo test --locked --manifest-path network-agent/Cargo.toml",
     "preview": "vite preview",
+    "deploy:api": "npx wrangler deploy --config worker/wrangler.jsonc",
     "bootstrap:native-deps": "node scripts/bootstrap-native-deps.mjs",
     "prepare:mic-sidecar": "node scripts/prepare-mic-sidecar.mjs",
     "tauri": "tauri",

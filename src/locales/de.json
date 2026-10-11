@@ -1163,5 +1163,6 @@
   "generated.619a9c9311e479e1": "Staatliche Inkongruenz - bitte versuchen Sie es erneut.",
   "generated.e5d2f74dcea05591": "Sitzung nicht gefunden - bitte versuchen Sie es erneut.",
   "generated.b1bdd96c50fd0389": "Kein Autorisierungscode erhalten.",
-  "status.waiting.instance": "Warten auf die Instanz"
+  "status.waiting.instance": "Warten auf die Instanz",
+  "web.runtimeNotice": "Noland Web führt Konto- und Instanzvorgänge in diesem Browser aus. Native Speicher-, Mikrofon-, Terminal- und Anzeigewerkzeuge werden noch portiert."
 }

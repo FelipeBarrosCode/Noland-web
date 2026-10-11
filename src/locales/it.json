@@ -1163,5 +1163,6 @@
   "generated.619a9c9311e479e1": "Mismatch di Stato — si prega di riprovare.",
   "generated.e5d2f74dcea05591": "Sessione non trovata — si prega di riprovare.",
   "generated.b1bdd96c50fd0389": "Nessun codice di autorizzazione ricevuto.",
-  "status.waiting.instance": "In attesa dell’istanza"
+  "status.waiting.instance": "In attesa dell’istanza",
+  "web.runtimeNotice": "Noland Web esegue le operazioni dell’account e dell’istanza in questo browser. Gli strumenti nativi per archiviazione, microfono, terminale e display sono ancora in fase di porting."
 }
