@@ -28,6 +28,8 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm run i18n:check
+      - name: Install helper native check dependencies
+        run: bash scripts/ci/install-linux-native-deps.sh
       - name: Check Noland Helper Rust bridge
         env:
           NOLAND_SKIP_NATIVE_BUILD: "1"
