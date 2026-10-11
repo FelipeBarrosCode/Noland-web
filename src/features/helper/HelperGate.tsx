@@ -4,13 +4,13 @@ import { Card } from "../../components/ui/Card";
 import { isHelperAvailable } from "../../helper/client";
 import { translate } from "../../lib/i18n";
 import { isRunningInTauri } from "../../lib/tauri";
-
-const HELPER_RELEASE_URL = "https://github.com/FelipeBarrosCode/Noland-web/releases/tag/noland-helper-latest";
+import { HELPER_RELEASE_PAGE, resolveHelperDownload } from "../../helper/releases";
 
 export function HelperGate({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<"checking" | "missing" | "ready">(
     isRunningInTauri() ? "ready" : "checking",
   );
+  const [downloadUrl, setDownloadUrl] = useState(HELPER_RELEASE_PAGE);
 
   useEffect(() => {
     if (isRunningInTauri()) return;
@@ -27,6 +27,10 @@ export function HelperGate({ children }: { children: ReactNode }) {
       cancelled = true;
       if (timer !== null) window.clearTimeout(timer);
     };
+  }, []);
+
+  useEffect(() => {
+    if (!isRunningInTauri()) void resolveHelperDownload().then(setDownloadUrl);
   }, []);
 
   if (status === "ready") return children;
@@ -47,7 +51,7 @@ export function HelperGate({ children }: { children: ReactNode }) {
         </p>
         {status === "missing" ? (
           <div className="mt-5 flex flex-wrap gap-3">
-            <a href={HELPER_RELEASE_URL} target="_blank" rel="noreferrer">
+            <a href={downloadUrl} target="_blank" rel="noreferrer">
               <Button>{translate("web.helper.install")}</Button>
             </a>
             <Button variant="ghost" onClick={() => setStatus("checking")}>

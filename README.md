@@ -18,14 +18,32 @@
 
 ---
 
-> **Port status:** the browser foundation supports local browser state, Vast.ai onboarding,
-> offer discovery, instance lifecycle reconciliation, instance creation, and installation
-> of a pinned Moonlight Web gateway on the rented instance. Native-only settings remain
-> visible while they are progressively replaced; unsupported commands return explicit
-> errors instead of silently invoking Tauri.
+> **Port status:** Noland Web uses a signed/local Noland Helper architecture. The browser
+> discovers the loopback helper, creates a short-lived session, and sends the existing
+> Tauri command contract through an origin-restricted RPC bridge. The helper preserves
+> the complete Rust, SSH, keychain, terminal, upload, storage, microphone, display, and
+> network implementation instead of replacing it with incomplete browser substitutes.
 
 See [`WEB_PORT_PLAN.md`](WEB_PORT_PLAN.md) for production milestones and
 [`instance-gateway/README.md`](instance-gateway/README.md) for the rented-instance gateway.
+
+## Web/helper flow
+
+```text
+Noland Web (Cloudflare HTTPS)
+        ⇅ origin-restricted localhost HTTP + SSE
+Noland Helper (Rust/Tauri, 127.0.0.1:43127)
+        ⇅ existing SSH/SFTP orchestration
+Rented instance
+        ├─ Sunshine
+        ├─ Nginx HTTPS authentication
+        └─ Moonlight Web WebRTC gateway
+```
+
+On first access, the website detects whether Noland Helper is running and offers the
+correct installer. The helper imports existing desktop state when present, reuses the
+OS keychain, starts automatically at login, and moves to the system tray after the
+browser handshake.
 
 ## Why No Land exists
 

@@ -55,6 +55,14 @@ Moonlight protocol implementation.
 - [x] Pinned Moonlight Web Stream gateway source and verified binary installer.
 - [x] Rented-instance bootstrap for Sunshine, TLS, WebRTC ports, and systemd services.
 - [x] Web-only CI and Cloudflare Worker/static asset deployment configuration.
+- [x] Origin-restricted loopback helper API with expiring browser sessions.
+- [x] Generic Tauri command bridge preserving the complete Rust/SSH implementation.
+- [x] Server-sent native provisioning, terminal, upload, and storage events.
+- [x] Existing desktop state/keychain migration, autostart, and tray lifecycle.
+- [x] Native helper file picker and existing SFTP upload pathway.
+- [x] SSH installation/repair of the rented-instance WebRTC gateway.
+- [x] Cloudflare TURN credentials injected into the gateway at stream handoff.
+- [x] macOS ARM64, Windows x64, and Linux x64 helper release workflow.
 - [ ] Replace Moonlight Web's initial local administrator flow with Noland-scoped tokens.
 - [ ] Automate Sunshine pairing from the Noland browser session.
 - [ ] Add trusted per-instance TLS hostnames instead of bootstrap self-signed certificates.
