@@ -33,7 +33,7 @@ jobs:
         env:
           NOLAND_REQUIRE_SIGNED_RELEASE: "0"
         run: >-
-          npm run tauri:build -- --target aarch64-apple-darwin --bundles dmg
+          npm run tauri:build -- --target aarch64-apple-darwin --bundles app,dmg
           --config '{"bundle":{"createUpdaterArtifacts":false}}'
       - name: Collect helper installer
         run: |
