@@ -1164,5 +1164,9 @@
   "generated.e5d2f74dcea05591": "セッションが見つかりません。",
   "generated.b1bdd96c50fd0389": "認証コードは取得できません。",
   "status.waiting.instance": "インスタンスを待機中",
-  "web.runtimeNotice": "Noland Web はこのブラウザーでアカウントとインスタンスの操作を実行します。ネイティブのストレージ、マイク、ターミナル、ディスプレイ機能は現在移植中です。"
+  "web.runtimeNotice": "Noland Web はこのブラウザーでアカウントとインスタンスの操作を実行します。ネイティブのストレージ、マイク、ターミナル、ディスプレイ機能は現在移植中です。",
+  "web.gateway.readyTitle": "ブラウザーゲートウェイの準備完了",
+  "web.gateway.readyDescription": "ゲートウェイを開き、求められた場合は一時証明書を承認して、Noland のユーザー名とパスワードでログインしてください。最初のストリーム前に localhost を Sunshine とペアリングします。",
+  "web.gateway.open": "ストリーミングゲートウェイを開く",
+  "web.gateway.dashboard": "ダッシュボードに戻る"
 }

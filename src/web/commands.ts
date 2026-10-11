@@ -122,6 +122,8 @@ async function pollUntilRunning(instanceId: number): Promise<void> {
         next.instance.sshHost = instance.sshHost;
         next.instance.sshPort = instance.sshPort;
         next.moonlight.hostAddress = instance.publicIp || instance.sshHost;
+        next.wireguard.endpointHost = instance.publicIp || instance.sshHost;
+        next.wireguard.endpointPort = instance.gatewayPort ?? 8080;
         next.orchestrationState = "Ready";
         next.lastError = null;
       });

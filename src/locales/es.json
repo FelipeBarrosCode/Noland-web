@@ -1164,5 +1164,9 @@
   "generated.e5d2f74dcea05591": "Sesión no encontrada — por favor intente de nuevo.",
   "generated.b1bdd96c50fd0389": "No se ha recibido ningún código de autorización.",
   "status.waiting.instance": "Esperando la instancia",
-  "web.runtimeNotice": "Noland Web ejecuta las operaciones de cuenta e instancia en este navegador. Las herramientas nativas de almacenamiento, micrófono, terminal y pantalla aún se están migrando."
+  "web.runtimeNotice": "Noland Web ejecuta las operaciones de cuenta e instancia en este navegador. Las herramientas nativas de almacenamiento, micrófono, terminal y pantalla aún se están migrando.",
+  "web.gateway.readyTitle": "Puerta de enlace del navegador lista",
+  "web.gateway.readyDescription": "Abre la puerta de enlace, acepta el certificado temporal si se solicita e inicia sesión con tus credenciales de Noland. Empareja localhost con Sunshine antes de la primera transmisión.",
+  "web.gateway.open": "Abrir puerta de enlace",
+  "web.gateway.dashboard": "Volver al panel"
 }

@@ -13,6 +13,8 @@ import type {
 } from "../../lib/types";
 import { PostWireguardModal } from "./PostWireguardModal";
 import { useLocalization, translate } from "../../lib/i18n";
+import { isRunningInTauri } from "../../lib/tauri";
+import { openExternalUrl } from "../../lib/openExternal";
 
 interface Props {
   appState: PersistedAppState;
@@ -63,6 +65,7 @@ export function ProvisioningScreen({
   onStopSleepPrevention,
 }: Props) {
   const { t } = useLocalization();
+  const browserRuntime = !isRunningInTauri();
   const currentIndex = useMemo(() => {
     const index = PROVISIONING_ORDER.indexOf(
       appState.orchestrationState as (typeof PROVISIONING_ORDER)[number],
@@ -70,7 +73,7 @@ export function ProvisioningScreen({
     return index === -1 ? 0 : index;
   }, [appState.orchestrationState]);
 
-  const provisioningModalRequested =
+  const provisioningModalRequested = !browserRuntime && (
     appState.orchestrationState === "WireGuardConfigGenerated" ||
     appState.orchestrationState === "WireGuardAppHandoffStarted" ||
     appState.orchestrationState === "WireGuardWaitingForImport" ||
@@ -85,9 +88,14 @@ export function ProvisioningScreen({
     appState.orchestrationState === "MoonlightPinReceived" ||
     appState.orchestrationState === "SunshinePinSubmitting" ||
     appState.orchestrationState === "MoonlightSunshinePaired" ||
-    appState.orchestrationState === "Ready";
+    appState.orchestrationState === "Ready");
   const provisioningModalOpen =
     provisioningModalRequested && !provisioningModalDismissed;
+  const browserGatewayHost = appState.moonlight.hostAddress || appState.wireguard.endpointHost;
+  const browserGatewayPort = appState.wireguard.endpointPort || 8080;
+  const browserGatewayUrl = browserGatewayHost
+    ? `https://${browserGatewayHost}:${browserGatewayPort}/`
+    : null;
 
   return (
     <main className="crt-surface min-h-dvh bg-hero-glow px-4 pb-8 pt-6 md:px-8">
@@ -122,6 +130,24 @@ export function ProvisioningScreen({
         </div>
 
         <section className="grid gap-4 lg:grid-cols-[1.1fr_1fr]">
+          {browserRuntime && appState.orchestrationState === "Ready" && browserGatewayUrl ? (
+            <Card className="pixel-frame border-neon-cyan lg:col-span-2">
+              <h2 className="font-display text-sm uppercase tracking-[0.12em] text-neon-cyan">
+                {t("web.gateway.readyTitle")}
+              </h2>
+              <p className="mt-3 text-[1.15rem] text-[#d9efff]">
+                {t("web.gateway.readyDescription")}
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Button onClick={() => void openExternalUrl(browserGatewayUrl)}>
+                  {t("web.gateway.open")}
+                </Button>
+                <Link to="/">
+                  <Button variant="ghost">{t("web.gateway.dashboard")}</Button>
+                </Link>
+              </div>
+            </Card>
+          ) : null}
           <Card className="pixel-frame">
             {blockingAction?.key === "provisioning.flow" && (
               <div className="mb-4" aria-busy="true" aria-live="polite">

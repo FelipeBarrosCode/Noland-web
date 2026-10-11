@@ -1164,5 +1164,9 @@
   "generated.e5d2f74dcea05591": "Sitzung nicht gefunden - bitte versuchen Sie es erneut.",
   "generated.b1bdd96c50fd0389": "Kein Autorisierungscode erhalten.",
   "status.waiting.instance": "Warten auf die Instanz",
-  "web.runtimeNotice": "Noland Web führt Konto- und Instanzvorgänge in diesem Browser aus. Native Speicher-, Mikrofon-, Terminal- und Anzeigewerkzeuge werden noch portiert."
+  "web.runtimeNotice": "Noland Web führt Konto- und Instanzvorgänge in diesem Browser aus. Native Speicher-, Mikrofon-, Terminal- und Anzeigewerkzeuge werden noch portiert.",
+  "web.gateway.readyTitle": "Browser-Gateway bereit",
+  "web.gateway.readyDescription": "Öffnen Sie das Gateway, akzeptieren Sie bei Bedarf das temporäre Zertifikat und melden Sie sich mit Ihren Noland-Zugangsdaten an. Koppeln Sie localhost vor dem ersten Stream mit Sunshine.",
+  "web.gateway.open": "Streaming-Gateway öffnen",
+  "web.gateway.dashboard": "Zum Dashboard"
 }

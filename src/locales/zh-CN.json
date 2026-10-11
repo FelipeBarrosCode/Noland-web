@@ -1164,5 +1164,9 @@
   "generated.e5d2f74dcea05591": "找不到会话 —— 请再试一次 。",
   "generated.b1bdd96c50fd0389": "没有收到授权代码 。",
   "status.waiting.instance": "正在等待实例",
-  "web.runtimeNotice": "Noland Web 在此浏览器中执行账户和实例操作。原生存储、麦克风、终端和显示工具仍在移植中。"
+  "web.runtimeNotice": "Noland Web 在此浏览器中执行账户和实例操作。原生存储、麦克风、终端和显示工具仍在移植中。",
+  "web.gateway.readyTitle": "浏览器网关已就绪",
+  "web.gateway.readyDescription": "打开网关，在提示时接受临时证书，然后使用 Noland 用户名和密码登录。首次串流前，请将 localhost 与 Sunshine 配对。",
+  "web.gateway.open": "打开串流网关",
+  "web.gateway.dashboard": "返回控制面板"
 }

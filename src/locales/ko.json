@@ -1164,5 +1164,9 @@
   "generated.e5d2f74dcea05591": "세션이 없습니다 - 다시 시도하십시오.",
   "generated.b1bdd96c50fd0389": "인증 코드 없음.",
   "status.waiting.instance": "인스턴스 대기 중",
-  "web.runtimeNotice": "Noland Web은 이 브라우저에서 계정 및 인스턴스 작업을 실행합니다. 네이티브 저장소, 마이크, 터미널 및 디스플레이 도구는 아직 포팅 중입니다."
+  "web.runtimeNotice": "Noland Web은 이 브라우저에서 계정 및 인스턴스 작업을 실행합니다. 네이티브 저장소, 마이크, 터미널 및 디스플레이 도구는 아직 포팅 중입니다.",
+  "web.gateway.readyTitle": "브라우저 게이트웨이 준비 완료",
+  "web.gateway.readyDescription": "게이트웨이를 열고 메시지가 표시되면 임시 인증서를 승인한 다음 Noland 사용자 이름과 비밀번호로 로그인하세요. 첫 스트리밍 전에 localhost를 Sunshine과 페어링하세요.",
+  "web.gateway.open": "스트리밍 게이트웨이 열기",
+  "web.gateway.dashboard": "대시보드로 돌아가기"
 }

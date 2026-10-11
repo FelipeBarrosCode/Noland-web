@@ -1164,5 +1164,9 @@
   "generated.e5d2f74dcea05591": "La séance n'a pas été trouvée — veuillez réessayer.",
   "generated.b1bdd96c50fd0389": "Aucun code d'autorisation reçu.",
   "status.waiting.instance": "En attente de l’instance",
-  "web.runtimeNotice": "Noland Web exécute les opérations de compte et d’instance dans ce navigateur. Les outils natifs de stockage, microphone, terminal et affichage sont encore en cours de portage."
+  "web.runtimeNotice": "Noland Web exécute les opérations de compte et d’instance dans ce navigateur. Les outils natifs de stockage, microphone, terminal et affichage sont encore en cours de portage.",
+  "web.gateway.readyTitle": "Passerelle du navigateur prête",
+  "web.gateway.readyDescription": "Ouvrez la passerelle, acceptez le certificat temporaire si demandé et connectez-vous avec vos identifiants Noland. Associez localhost à Sunshine avant le premier flux.",
+  "web.gateway.open": "Ouvrir la passerelle",
+  "web.gateway.dashboard": "Retour au tableau de bord"
 }

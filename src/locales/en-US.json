@@ -1164,5 +1164,9 @@
   "generated.e5d2f74dcea05591": "Session not found — please try again.",
   "generated.b1bdd96c50fd0389": "No authorization code received.",
   "status.waiting.instance": "Waiting for instance",
-  "web.runtimeNotice": "Noland Web runs account and instance operations in this browser. Native-only storage, microphone, terminal, and display tools are still being ported."
+  "web.runtimeNotice": "Noland Web runs account and instance operations in this browser. Native-only storage, microphone, terminal, and display tools are still being ported.",
+  "web.gateway.readyTitle": "Browser gateway ready",
+  "web.gateway.readyDescription": "Open the gateway, accept its temporary certificate if prompted, and sign in with your Noland username and password. Pair localhost with Sunshine before the first stream.",
+  "web.gateway.open": "Open streaming gateway",
+  "web.gateway.dashboard": "Return to dashboard"
 }
